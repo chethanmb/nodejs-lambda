@@ -1,0 +1,88 @@
+var AWS = require('aws-sdk');
+
+var http = require('http');
+var https = require('https');
+var auth = Buffer.from('chethan.mb96@gmail.com' + ':' + 'LlQF1rrxaY2L5Oddpmyo0DAA').toString('base64');
+ 
+
+
+//exports.handler = async (event) => {
+//exports.handler = async function (event, context) {
+exports.handler = function (event, context, callback) {
+// console.log(event); 
+var receivedCallerSubmittedNumber = event['Details']['Parameters']['callerSubmittedNumber'];
+var calculated = receivedCallerSubmittedNumber;
+
+let options = {};
+var postData;
+let phNo = event.Details.ContactData.CustomerEndpoint.Address;
+
+console.log(phNo);
+
+options = {
+  host: 'chethanmb.atlassian.net',
+  path: '/rest/api/3/issue/',
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Authorization': 'Basic ' + new Buffer('chethan.mb96@gmail.com' + ':' + 'LlQF1rrxaY2L5Oddpmyo0DAA').toString('base64')
+  }
+  
+};
+
+postData = JSON.stringify({
+   "fields": {
+    "summary": "***test-summary***",  
+    "issuetype": {
+      "id": "10005"
+    },     
+    "project": {
+      "id": "10002"
+    },
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "*****List of issue screen fields to update,......*****" ,
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+  )
+  
+  let response = {};
+  let body = "";
+  let req;
+  
+  await new Promise(function(resolve, reject){
+    req = https.request(options, (res) =>{
+      console.log(`STATUS: ${res.statusCode}`);
+      response.statusCode = res.statusCode;
+      console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+      res.setEncoding("utf8");
+      res.on("data", data => {
+        body += data;
+      });
+      res.on('error', (e) => {
+        console.error(`Problem with request: ${e.message}`);
+        
+      });
+      res.on("end", () => {
+        console.log(`End: reached` + body);
+        response.issueKey = JSON.parse(body).issueKey;
+        resolve(body);
+      });
+    });
+    
+  });
+
+ 
+};
