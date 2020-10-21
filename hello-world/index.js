@@ -1,7 +1,10 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3();
+var AWS = require('aws-sdk');
+AWS.config.update({region: 'us-east-1'});
+var ddb = new AWS.DynamoDB();
+
+
 
 //exports.lambdaHandler = async (event, context, callback) => {
 //exports.lambdaHandler = async function (event, context) {
@@ -141,7 +144,30 @@ sendReq = async() => {
     console.log("Request Key: " +jsonResp.key);
     console.log("Request ID: " +jsonResp.id);
     console.log("Request URL: " +jsonResp.self);
+  //  let jsonData = JSON.stringify(jsonResp);
+  //  console.log(jsonData);
+    var datetime = new Date().toISOString();
+    console.log(datetime);
+
+    var params = {
+      TableName: "test-DDB",
+      Item: {
+        id: { S: jsonResp.id },
+        key: { S: jsonResp.key },
+        url: { S: jsonResp.self },
+        creation_date: { S: datetime }
+      }
+    };
+     ddb.putItem(params, function(err, data) {
+     if (err) {
+       console.log("Error", err);
+     } else {
+       console.log("Success", data);
+     }
+    });
     
+
+
   } catch (e) {
    
     console.error(e)
@@ -151,3 +177,43 @@ sendReq();
 
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* // Load the AWS SDK for Node.js
+var AWS = require('aws-sdk');
+// Set the region 
+AWS.config.update({region: 'us-east-1'});
+
+// Create the DynamoDB service object
+var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+
+var params = {
+  TableName: "test-DDB",
+  Item: {
+    'id' : {S: '10001'},
+    'key' : {S: 'TEST-01'},
+    'url' : {S: 'dce de dce dedcdimcwedcmjwedcw'}
+  }
+};
+
+// Call DynamoDB to add the item to the table
+ddb.putItem(params, function(err, data) {
+  if (err) {
+    console.log("Error", err);
+  } else {
+    console.log("Success", data);
+  }
+}); */
