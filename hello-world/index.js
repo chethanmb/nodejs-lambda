@@ -1,9 +1,11 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
 var AWS = require('aws-sdk');
+var sendReq = require('./sendRequest');
 AWS.config.update({region: 'us-east-1'});
 var ddb = new AWS.DynamoDB();
 var docClient = new AWS.DynamoDB.DocumentClient();
+
 
 
 
@@ -27,6 +29,8 @@ console.log(initMethod);
 console.log(instanceARN);
 console.log(enteredEmpid);
 
+
+
 var params = {
   TableName: "test-users",
   Key:{
@@ -44,77 +48,15 @@ docClient.get(params, function(err, data) {
 });
 
 if (calculated == 1){
- bodyData = JSON.stringify({
-  "update": {}, 
-   "fields": {
-     "summary": "I-CreatedBy : "+initMethod+ "", 
-     "issuetype": {
-       "id": "10001"
-     },     
-     "project": {
-       "id": "10002"
-     },
-     "priority": {
-      "id": "1"
-     },
-     "reporter": {
-      "name": "Jira API"
-    },
-     "description": {
-       "type": "doc",
-       "version": 1,
-       "content": [
-         {
-           "type": "paragraph",
-           "content": [
-             {
-               "text": "PhNo: "+phNo+", " +instanceARN+ ",***INCIDENT***",
-               "type": "text"
-             }
-           ]
-         }
-       ]
-     }
-   
- }
-});
+  let rawdata = fs.readFileSync('dataSet_1.json');
+  let ds_1 = JSON.parse(rawdata);
+  bodyData = JSON.stringify(ds_1);
 }
 
 else if (calculated == 2){
-    bodyData = JSON.stringify({
-      "update": {}, 
-       "fields": {
-         "summary": "S-CreatedBy : "+initMethod+ " ",  
-         "issuetype": {
-           "id": "10002"
-         },     
-         "project": {
-           "id": "10002"
-         },
-         "priority": {
-          "id": "4"
-         },
-         "reporter": {
-          "name": "Jira API"
-        },
-         "description": {
-           "type": "doc",
-           "version": 1,
-           "content": [
-             {
-               "type": "paragraph",
-               "content": [
-                 {
-                   "text": "PhNo: "+phNo+",  " +instanceARN+ ",***SERVICE REQUEST***",
-                   "type": "text"
-                 }
-               ]
-             }
-           ]
-         }
-       
-     }
-    });
+  let rawdata = fs.readFileSync('dataSet_2.json');
+  let ds_2 = JSON.parse(rawdata);
+  bodyData = JSON.stringify(ds_2);
 }
 
 else {
@@ -147,71 +89,9 @@ console.log('Remaining time: ', context.getRemainingTimeInMillis());
 }; */
 
 
-sendReq = async() => {
+//= async() =>
 
-  try {
-    var response = await fetch('https://chethanmb.atlassian.net/rest/api/3/issue', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${Buffer.from('chethan.mb96@gmail.com:LlQF1rrxaY2L5Oddpmyo0DAA').toString('base64')}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: bodyData
-    })
-    let jsonResp = await response.json();
-    
-    console.log("Request Key: " +jsonResp.key);
-    console.log("Request ID: " +jsonResp.id);
-    console.log("Request URL: " +jsonResp.self);
-  //  let jsonData = JSON.stringify(jsonResp);
-  //  console.log(jsonData);
-    var datetime = new Date().toISOString();
-    console.log(datetime);
-
-    var params = {
-      TableName: "test-DDB",
-      Item: {
-        id: { S: jsonResp.id },
-        key: { S: jsonResp.key },
-        url: { S: jsonResp.self },
-        creation_date: { S: datetime }
-      }
-    };
-     ddb.putItem(params, function(err, data) {
-     if (err) {
-       console.log("Error", err);
-     } else {
-       console.log("Success", data);
-     }
-    });
-
-    //var msg = JSON.stringify(jsonResp);
-    var params = {
-      Message: JSON.stringify(jsonResp),
-      TopicArn: 'arn:aws:sns:us-east-1:329189147377:gmail_email_alerts'
-    };
-    
-    var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
-    
-    publishTextPromise.then(
-      function(data) {
-        console.log(`Message ${params.Message} sent to the topic ${params.TopicArn}`);
-        console.log("MessageID is " + data.MessageId);
-      }).catch(
-        function(err) {
-        console.error(err, err.stack);
-      });
-    
-
-
-  } catch (e) {
-   
-    console.error(e)
-  }
-} 
-
-sendReq()
+sendReq.send(fetch,bodyData,ddb,docClient);
 
 
 

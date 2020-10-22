@@ -1,0 +1,35 @@
+
+{
+   "update": {}, 
+    "fields": {
+      "summary": "I-CreatedBy ", 
+      "issuetype": {
+        "id": "10002"
+      },     
+      "project": {
+        "id": "10002"
+      },
+      "priority": {
+       "id": "1"
+      },
+      "reporter": {
+       "name": "Jira API"
+     },
+      "description": {
+        "type": "doc",
+        "version": 1,
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "PhNo: ***INCIDENT***",
+                "type": "text"
+              }
+            ]
+          }
+        ]
+      }
+    
+  }
+}
