@@ -20,7 +20,8 @@
     },
     "Parameters": {
       "sentAttributeKey": "sentAttributeValue",
-      "callerSubmittedNumber": "1"
+      "callerSubmittedNumber": "1",
+      "enteredEmpid": "1234"
     }
   },
   "Name": "ContactFlowEvent"

@@ -3,6 +3,7 @@ const fs = require('fs');
 var AWS = require('aws-sdk');
 AWS.config.update({region: 'us-east-1'});
 var ddb = new AWS.DynamoDB();
+var docClient = new AWS.DynamoDB.DocumentClient();
 
 
 
@@ -12,7 +13,9 @@ exports.lambdaHandler = function (event, context, callback) {
 // console.log(event); 
 //var receivedCallerSubmittedNumber = event['Details']['Parameters']['callerSubmittedNumber'];
 var receivedCallerSubmittedNumber = event.Details.Parameters.callerSubmittedNumber;
+var enteredEmpid = event.Details.Parameters.enteredEmpid;
 var calculated = receivedCallerSubmittedNumber;
+
 let phNo = event.Details.ContactData.CustomerEndpoint.Address;
 var initMethod = event.Details.ContactData.InitiationMethod;
 var instanceARN = event.Details.ContactData.InstanceARN;
@@ -22,12 +25,29 @@ var bodyData = {};
 console.log(calculated); 
 console.log(initMethod);
 console.log(instanceARN);
+console.log(enteredEmpid);
+
+var params = {
+  TableName: "test-users",
+  Key:{
+      "empid": enteredEmpid   
+  }
+};
+
+docClient.get(params, function(err, data) {
+  if (err) {
+     console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+ } else {
+    var recvdEmail = data.Item.email;
+     console.log(data.Item.email);
+ }
+});
 
 if (calculated == 1){
  bodyData = JSON.stringify({
   "update": {}, 
    "fields": {
-     "summary": "I-CreatedBy : "+initMethod+ ", user selected no-1", 
+     "summary": "I-CreatedBy : "+initMethod+ "", 
      "issuetype": {
        "id": "10001"
      },     
@@ -48,7 +68,7 @@ if (calculated == 1){
            "type": "paragraph",
            "content": [
              {
-               "text": "PhNo: "+phNo+",  " +instanceARN+ ",***INCIDENT***",
+               "text": "PhNo: "+phNo+", " +instanceARN+ ",***INCIDENT***",
                "type": "text"
              }
            ]
@@ -64,7 +84,7 @@ else if (calculated == 2){
     bodyData = JSON.stringify({
       "update": {}, 
        "fields": {
-         "summary": "S-CreatedBy : "+initMethod+ ", user selected no-2",  
+         "summary": "S-CreatedBy : "+initMethod+ " ",  
          "issuetype": {
            "id": "10002"
          },     
@@ -165,6 +185,23 @@ sendReq = async() => {
        console.log("Success", data);
      }
     });
+
+    //var msg = JSON.stringify(jsonResp);
+    var params = {
+      Message: JSON.stringify(jsonResp),
+      TopicArn: 'arn:aws:sns:us-east-1:329189147377:gmail_email_alerts'
+    };
+    
+    var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
+    
+    publishTextPromise.then(
+      function(data) {
+        console.log(`Message ${params.Message} sent to the topic ${params.TopicArn}`);
+        console.log("MessageID is " + data.MessageId);
+      }).catch(
+        function(err) {
+        console.error(err, err.stack);
+      });
     
 
 
@@ -173,7 +210,10 @@ sendReq = async() => {
     console.error(e)
   }
 } 
-sendReq();
+
+sendReq()
+
+
 
 
 };
