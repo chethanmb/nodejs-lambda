@@ -29,8 +29,6 @@ console.log(initMethod);
 console.log(instanceARN);
 console.log(enteredEmpid);
 
-
-
 var params = {
   TableName: "test-users",
   Key:{
@@ -38,14 +36,32 @@ var params = {
   }
 };
 
-docClient.get(params, function(err, data) {
+
+async function logSingleItem(){
+  try {
+      var params = {
+          Key: {
+           "empid": {"S": enteredEmpid}
+          }, 
+          TableName: "test-users"
+      };
+      var result = await ddb.getItem(params).promise()
+      console.log(result.Item.email.S)
+  } catch (error) {
+      console.error(error);
+  }
+}
+logSingleItem()
+
+
+/* docClient.get(params, function(err, data) {
   if (err) {
      console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
  } else {
     var recvdEmail = data.Item.email;
      console.log(data.Item.email);
  }
-});
+}); */
 
 if (calculated == 1){
   let rawdata = fs.readFileSync('dataSet_1.json');

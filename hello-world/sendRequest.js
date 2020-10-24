@@ -16,7 +16,7 @@ send:  async(fetch, bodyData, ddb, docClient) => {
      console.log("Request Key: " +jsonResp.key);
      console.log("Request ID: " +jsonResp.id);
      console.log("Request URL: " +jsonResp.self);
-   //  let jsonData = JSON.stringify(jsonResp);
+    // let jsonStringData = bodyData.toString();
    //  console.log(jsonData);
      var datetime = new Date().toISOString();
      console.log(datetime);
@@ -27,7 +27,8 @@ send:  async(fetch, bodyData, ddb, docClient) => {
          id: { S: jsonResp.id },
          key: { S: jsonResp.key },
          url: { S: jsonResp.self },
-         creation_date: { S: datetime }
+         creation_date: { S: datetime },
+         jsonPayload: { S: bodyData }
        }
      };
       ddb.putItem(params, function(err, data) {
