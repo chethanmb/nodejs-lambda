@@ -1,6 +1,8 @@
+const putPayload = require('./dynamoDB');
 
 module.exports = {
 send:  async(fetch, bodyData, ddb, docClient) => {
+  
    try {
      var response = await fetch('https://chethanmb.atlassian.net/rest/api/3/issue', {
        method: 'POST',
@@ -31,13 +33,8 @@ send:  async(fetch, bodyData, ddb, docClient) => {
          jsonPayload: { S: bodyData }
        }
      };
-      ddb.putItem(params, function(err, data) {
-      if (err) {
-        console.log("Error", err);
-      } else {
-        console.log("Success", data);
-      }
-     });
+     
+     putPayload.insertPayload(ddb, params);
  
      //var msg = JSON.stringify(jsonResp);
      /* var params = {

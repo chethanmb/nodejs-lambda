@@ -2,6 +2,7 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 var AWS = require('aws-sdk');
 var sendReq = require('./sendRequest');
+var ddbRequest = require('./dynamoDB');
 AWS.config.update({region: 'us-east-1'});
 var ddb = new AWS.DynamoDB();
 var docClient = new AWS.DynamoDB.DocumentClient();
@@ -30,28 +31,15 @@ console.log(instanceARN);
 console.log(enteredEmpid);
 
 var params = {
-  TableName: "test-users",
-  Key:{
-      "empid": enteredEmpid   
-  }
+  Key: {
+   "empid": {"S": enteredEmpid}
+  }, 
+  TableName: "test-users"
 };
 
 
-async function logSingleItem(){
-  try {
-      var params = {
-          Key: {
-           "empid": {"S": enteredEmpid}
-          }, 
-          TableName: "test-users"
-      };
-      var result = await ddb.getItem(params).promise()
-      console.log(result.Item.email.S)
-  } catch (error) {
-      console.error(error);
-  }
-}
-logSingleItem()
+
+ddbRequest.getEmail(ddb, params);
 
 
 /* docClient.get(params, function(err, data) {
