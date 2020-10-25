@@ -13,7 +13,7 @@ async function getEmail(ddb, params){
 
 
  async function insertPayload(ddb, params){
- ddb.putItem(params, function(err, data) {
+ await ddb.putItem(params, function(err, data) {
     if (err) {
       console.log("Error", err);
     } else {
@@ -23,15 +23,13 @@ async function getEmail(ddb, params){
 }
 exports.insertPayload = insertPayload;
 
-async function updateDB(ddb, params){
-    console.log("Updating the item...");
-    docClient.update(params, function(err, data) {
-        if (err) {
-            console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
-        } else {
-            console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
-        }
-    });   
-}
+
+async function updateResponse(ddb, params){
+    await ddb.updateItem(params, function(err, data) {
+        if (err) console.log(err, err.stack); 
+        else     console.log(data);           
+});
+    }
+exports.updateResponse = updateResponse;
 
  

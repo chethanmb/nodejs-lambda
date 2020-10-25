@@ -1,8 +1,24 @@
 const putPayload = require('./dynamoDB');
 
+
 module.exports = {
-send:  async(fetch, bodyData, ddb, docClient) => {
   
+send:  async(fetch, bodyData, ddb, docClient,datetime) => {
+  var params = {
+    TableName: "test-DDB",
+    Item: {
+      id: { S: "1" },
+      key: { S: "" },
+      url: { S: "" },
+      creation_date: { S: datetime },
+      jsonPayload: { S: bodyData }
+    }
+  };
+  
+  putPayload.insertPayload(ddb, params);
+
+
+
    try {
      var response = await fetch('https://chethanmb.atlassian.net/rest/api/3/issue', {
        method: 'POST',
@@ -20,21 +36,37 @@ send:  async(fetch, bodyData, ddb, docClient) => {
      console.log("Request URL: " +jsonResp.self);
     // let jsonStringData = bodyData.toString();
    //  console.log(jsonData);
-     var datetime = new Date().toISOString();
-     console.log(datetime);
- 
-     var params = {
-       TableName: "test-DDB",
-       Item: {
-         id: { S: jsonResp.id },
-         key: { S: jsonResp.key },
-         url: { S: jsonResp.self },
-         creation_date: { S: datetime },
-         jsonPayload: { S: bodyData }
-       }
-     };
      
-     putPayload.insertPayload(ddb, params);
+ 
+   var params = {
+    ExpressionAttributeNames: {
+     //"#id": "id", 
+     "#key": "key",
+     "#url": "url"
+    }, 
+    ExpressionAttributeValues: {
+     /* ":i": {
+       S: jsonResp.id
+      },  */
+     ":k": {
+       S: jsonResp.key
+    }, 
+     ":u": {
+       S: jsonResp.self
+    }
+  },
+    Key: {
+     "id": {
+       S: "1"
+      }
+    }, 
+    ReturnValues: "ALL_NEW", 
+    TableName: "test-DDB", 
+    UpdateExpression: "SET  #key = :k, #url = :u"
+   };
+     
+
+     putPayload.updateResponse(ddb, params);
  
      //var msg = JSON.stringify(jsonResp);
      /* var params = {

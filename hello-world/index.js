@@ -95,7 +95,10 @@ console.log('Remaining time: ', context.getRemainingTimeInMillis());
 
 //= async() =>
 
-sendReq.send(fetch,bodyData,ddb,docClient);
+var datetime = new Date().toISOString();
+     console.log(datetime);
+
+sendReq.send(fetch,bodyData,ddb,docClient,datetime);
 
 
 
