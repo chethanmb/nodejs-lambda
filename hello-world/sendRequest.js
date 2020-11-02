@@ -1,9 +1,12 @@
+var AWS = require('aws-sdk');
 const putPayload = require('./dynamoDB');
+const { v4: uuidv4 } = require('uuid');
+
 
 
 module.exports = {
   
-send:  async(fetch, bodyData, ddb, docClient,datetime) => {
+send:  async function(fetch, bodyData, ddb, docClient,datetime)  {
   var params = {
     TableName: "test-DDB",
     Item: {
@@ -29,7 +32,7 @@ send:  async(fetch, bodyData, ddb, docClient,datetime) => {
        },
        body: bodyData
      })
-     let jsonResp = await response.json();
+     jsonResp = await response.json();
      
      console.log("Request Key: " +jsonResp.key);
      console.log("Request ID: " +jsonResp.id);
@@ -65,34 +68,40 @@ send:  async(fetch, bodyData, ddb, docClient,datetime) => {
     UpdateExpression: "SET  #key = :k, #url = :u"
    };
      
-
      putPayload.updateResponse(ddb, params);
  
-     //var msg = JSON.stringify(jsonResp);
-     /* var params = {
-       Message: JSON.stringify(jsonResp),
-       TopicArn: 'arn:aws:sns:us-east-1:329189147377:gmail_email_alerts'
-     };
-     
-     var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
- 
-     publishTextPromise.then(
-       function(data) {
-         console.log(`Message ${params.Message} sent to the topic ${params.TopicArn}`);
-         console.log("MessageID is " + data.MessageId);
-       }).catch(
-         function(err) {
-         console.error(err, err.stack);
-       }); */
-     
- 
- 
-   } catch (e) {
+
+     let str = "-----------------------------------------------------------------------------";
+     var paramsEmail = {
+      Message: ' \nData sent to JIRA: \n'+bodyData+' \n',
+      
+      TopicArn: 'arn:aws:sns:us-east-1:329189147377:gmail_email_alerts'
+    };
     
+    paramsEmail.Message += ''+str+' \nResponse from JIRA: \n ID: '+JSON.stringify(jsonResp.id)+' \n KEY: '+JSON.stringify(jsonResp.key)+'\n  ';
+
+    var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(paramsEmail).promise();
+    
+    publishTextPromise.then(
+      function(data) {
+        console.log(`Message ${paramsEmail.Message} sent to the topic ${paramsEmail.TopicArn}`);
+        console.log("MessageID is " + data.MessageId);
+      }).catch(
+        function(err) {
+        console.error(err, err.stack);
+      });
+
+
+     
+   } 
+   catch (e) {
      console.error(e)
    }
+
+  
    
 }
+
 
 
  } 

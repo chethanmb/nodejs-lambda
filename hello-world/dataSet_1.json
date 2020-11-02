@@ -2,7 +2,7 @@
 {
    "update": {}, 
     "fields": {
-      "summary": "I-CreatedBy ", 
+      "summary": "I-CreatedBy PhNo: ", 
       "issuetype": {
         "id": "10001"
       },     
@@ -23,7 +23,7 @@
             "type": "paragraph",
             "content": [
               {
-                "text": "PhNo: ***INCIDENT***",
+                "text": "User selected Option: ",
                 "type": "text"
               }
             ]

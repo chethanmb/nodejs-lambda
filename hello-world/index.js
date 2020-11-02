@@ -54,12 +54,18 @@ ddbRequest.getEmail(ddb, params);
 if (calculated == 1){
   let rawdata = fs.readFileSync('dataSet_1.json');
   let ds_1 = JSON.parse(rawdata);
+  ds_1.fields.summary += phNo;
+  ds_1.fields.summary +=  '  EmpID: ' +enteredEmpid;
+  ds_1.fields.reporter.name = '---Email ID---';
   bodyData = JSON.stringify(ds_1);
 }
 
 else if (calculated == 2){
   let rawdata = fs.readFileSync('dataSet_2.json');
   let ds_2 = JSON.parse(rawdata);
+  ds_2.fields.summary += phNo;
+  ds_2.fields.summary +=  '  EmpID: ' +enteredEmpid;
+  ds_2.fields.reporter.name = '---Email ID---';
   bodyData = JSON.stringify(ds_2);
 }
 
@@ -68,6 +74,11 @@ else {
    callback(new Error(" Invalid user input - "+calculated+""));
 
 } 
+
+
+
+
+
 
  /* await (fetch('https://chethanmb.atlassian.net/rest/api/3/issue', {
   method: 'POST',
@@ -98,7 +109,11 @@ console.log('Remaining time: ', context.getRemainingTimeInMillis());
 var datetime = new Date().toISOString();
      console.log(datetime);
 
+
+
 sendReq.send(fetch,bodyData,ddb,docClient,datetime);
+
+ddbRequest.putObjectToS3(bodyData, "myData-"+datetime+"");
 
 
 
