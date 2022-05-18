@@ -127,7 +127,7 @@ else {
  /* await (fetch('https://chethanmb.atlassian.net/rest/api/3/issue', {
   method: 'POST',
   headers: {
-    'Authorization': `Basic ${Buffer.from('chethan.mb96@gmail.com:LlQF1rrxaY2L5Oddpmyo0DAA').toString('base64')}`,
+    'Authorization': `Basic ${Buffer.from('chethan.mb96@gmail.com:token here').toString('base64')}`,
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   },
@@ -154,7 +154,7 @@ sendReq = async() => {
     var response = await fetch('https://chethanmb.atlassian.net/rest/api/3/issue', {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${Buffer.from('chethan.mb96@gmail.com:LlQF1rrxaY2L5Oddpmyo0DAA').toString('base64')}`,
+        'Authorization': `Basic ${Buffer.from('chethan.mb96@gmail.com:token here').toString('base64')}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
